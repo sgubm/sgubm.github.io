@@ -57,7 +57,7 @@ body::before {
 }
 
 .main-nav a {
-  color: #000000;
+  color: #5B9BD5;
   text-decoration: none;
   font-size: 0.9rem;
   text-transform: lowercase;
@@ -77,7 +77,7 @@ body::before {
   left: 0;
   width: 0;
   height: 1px;
-  background: #000000;
+  background: #5B9BD5;
   transition: width 0.3s ease;
 }
 
@@ -130,7 +130,7 @@ body::before {
 .subtitle {
   font-size: 1.1rem;
   font-weight: 400;
-  color: #333333;
+  color: #5B9BD5;
   margin-bottom: 1.5rem;
   letter-spacing: 0.02em;
 }
@@ -158,7 +158,7 @@ h2 {
   margin-bottom: 2rem;
   letter-spacing: 0.05em;
   text-transform: lowercase;
-  color: #000000;
+  color: #5B9BD5;
 }
 
 section p {
@@ -166,6 +166,22 @@ section p {
   color: #333333;
   line-height: 1.9;
   max-width: 700px;
+  margin-bottom: 1.5rem;
+}
+
+#about p {
+  margin-bottom: 2rem;
+  line-height: 1.9;
+  text-align: justify;
+}
+
+#about p:last-child {
+  margin-bottom: 0;
+}
+
+section p strong {
+  font-weight: 600;
+  color: #000000;
 }
 
 .projects-description {
@@ -204,14 +220,14 @@ section ul li::before {
 
 .project-card {
   padding: 2rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid #4A8BC2;
   transition: all 0.3s ease;
   background: #ffffff;
   cursor: pointer;
 }
 
 .project-card:hover {
-  border-color: rgba(0, 0, 0, 0.3);
+  border-color: #3A7BA8;
   transform: translateY(-2px);
 }
 
@@ -340,7 +356,7 @@ section ul li::before {
 
 .cv-index a {
   font-size: 0.85rem;
-  color: #666666;
+  color: #5B9BD5;
   text-decoration: none;
   text-transform: lowercase;
   letter-spacing: 0.05em;
@@ -349,7 +365,7 @@ section ul li::before {
 }
 
 .cv-index a:hover {
-  color: #000000;
+  color: #4A8BC2;
 }
 
 .cv-index a::after {
@@ -359,7 +375,7 @@ section ul li::before {
   left: 0;
   width: 0;
   height: 1px;
-  background: #000000;
+  background: #5B9BD5;
   transition: width 0.3s ease;
 }
 
@@ -386,7 +402,7 @@ section ul li::before {
   margin-bottom: 1.5rem;
   letter-spacing: 0.05em;
   text-transform: lowercase;
-  color: #000000;
+  color: #5B9BD5;
 }
 
 .cv-card h4 {
@@ -396,7 +412,7 @@ section ul li::before {
   margin-bottom: 0.5rem;
   letter-spacing: 0.05em;
   text-transform: lowercase;
-  color: #000000;
+  color: #5B9BD5;
 }
 
 .cv-card h4:first-child {
@@ -409,6 +425,64 @@ section ul li::before {
   line-height: 1.9;
   max-width: 100%;
   margin-bottom: 1rem;
+}
+
+.basics-title {
+  color: #4A8BC2;
+  margin-bottom: 1.5rem;
+}
+
+.basics-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.basics-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.basics-label {
+  font-weight: 600;
+  color: #000000;
+  font-size: 1rem;
+}
+
+.basics-value {
+  color: #333333;
+  line-height: 1.9;
+  font-size: 1rem;
+}
+
+.basics-value strong {
+  font-weight: 600;
+  color: #000000;
+}
+
+.basics-value a {
+  color: #5B9BD5;
+  text-decoration: underline;
+  text-decoration-color: rgba(91, 155, 213, 0.3);
+  transition: text-decoration-color 0.3s ease;
+}
+
+.basics-value a:hover {
+  text-decoration-color: rgba(91, 155, 213, 0.6);
+}
+
+.work-experience-entry {
+  padding-bottom: 2rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #5B9BD5;
+}
+
+.work-experience-entry:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 
 footer {
@@ -632,6 +706,15 @@ a:hover {
 
   .cv-card {
     padding: 1.5rem;
+  }
+
+  .basics-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .basics-label {
+    margin-bottom: 0.25rem;
   }
 
   .contact-info {
