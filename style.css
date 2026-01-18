@@ -339,6 +339,31 @@ section ul li::before {
   font-weight: 500;
 }
 
+.cv-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.download-cv-button {
+  background: #5B9BD5;
+  color: #ffffff;
+  border: 1px solid #5B9BD5;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.85rem;
+  text-transform: lowercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+.download-cv-button:hover {
+  background: #4A8BC2;
+  border-color: #4A8BC2;
+}
+
 .cv-index {
   margin-bottom: 3rem;
   padding-bottom: 1.5rem;
@@ -704,6 +729,17 @@ a:hover {
     font-size: 0.8rem;
   }
 
+  .cv-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .download-cv-button {
+    width: 100%;
+    text-align: center;
+  }
+
   .cv-card {
     padding: 1.5rem;
   }
@@ -737,3 +773,4 @@ a:hover {
     padding: 0.875rem 2rem;
   }
 }
+
