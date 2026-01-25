@@ -120,7 +120,7 @@ body::before {
 }
 
 .hero h1 {
-  font-size: 3.5rem;
+  font-size: 2.8rem;
   font-weight: 400;
   margin-bottom: 0.5rem;
   letter-spacing: -0.02em;
@@ -157,7 +157,7 @@ h2 {
   font-weight: 400;
   margin-bottom: 2rem;
   letter-spacing: 0.05em;
-  text-transform: lowercase;
+  text-transform: capitalize;
   color: #5B9BD5;
 }
 
@@ -167,6 +167,13 @@ section p {
   line-height: 1.9;
   max-width: 700px;
   margin-bottom: 1.5rem;
+}
+
+#about h2 {
+  text-align: center;
+  text-decoration: underline;
+  text-decoration-color: #5B9BD5;
+  text-underline-offset: 0.5rem;
 }
 
 #about p {
@@ -236,7 +243,7 @@ section ul li::before {
   font-weight: 400;
   margin: 0;
   letter-spacing: 0.05em;
-  text-transform: lowercase;
+  text-transform: capitalize;
   color: #000000;
 }
 
@@ -323,7 +330,7 @@ section ul li::before {
   font-weight: 400;
   margin-bottom: 1rem;
   letter-spacing: 0.05em;
-  text-transform: lowercase;
+  text-transform: capitalize;
   color: #000000;
 }
 
@@ -426,7 +433,7 @@ section ul li::before {
   font-weight: 400;
   margin-bottom: 1.5rem;
   letter-spacing: 0.05em;
-  text-transform: lowercase;
+  text-transform: capitalize;
   color: #5B9BD5;
 }
 
@@ -436,7 +443,7 @@ section ul li::before {
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
   letter-spacing: 0.05em;
-  text-transform: lowercase;
+  text-transform: capitalize;
   color: #5B9BD5;
 }
 
@@ -773,4 +780,3 @@ a:hover {
     padding: 0.875rem 2rem;
   }
 }
-
