@@ -1,0 +1,886 @@
+<script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Buffer's Meeting Optimizer</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <header class="page-header">
+    <img src="https://buffer.com/static/icons/favicon-32x32.png" alt="Buffer" class="page-header-logo" width="56" height="56" />
+    <h1 class="page-title">📅 Buffer's Meeting Optimizer ✨</h1>
+    <p class="page-subtitle">Find the best time for everyone, across time zones.</p>
+  </header>
+
+  <div class="main-layout">
+    <div class="main-left">
+      <div class="calendar-wrap">
+        <h3 class="calendar-wrap-title">🕐 When to meet</h3>
+        <div id="heatmap"><p class="heatmap-placeholder">Loading…</p></div>
+        <details class="calendar-desplegable" aria-label="Score system">
+          <summary>📊 Score system</summary>
+          <div class="score-legend-inner">
+            <p>Each slot is scored by how many people are in a &ldquo;good&rdquo; local time:</p>
+            <ul class="legend-list">
+              <li><span class="legend-swatch legend-green"></span> <strong>Green</strong> — Core hours (09:00–18:00 local): best.</li>
+              <li><span class="legend-swatch legend-yellow"></span> <strong>Yellow</strong> — Early/late (06:30–09:00 or 18:00–23:30 local): okay.</li>
+              <li><span class="legend-swatch legend-red"></span> <strong>Red</strong> — Outside those windows (e.g. night): poor.</li>
+              <li><span class="legend-swatch legend-blocked"></span> <strong>Blocked</strong> — Person has a &ldquo;no meeting&rdquo; rule in that time.</li>
+            </ul>
+            <p>Darker green = higher score. Top 3 slots get a border. 🏆</p>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <aside class="main-right">
+      <section class="setup-col setup-col-yourself">
+        <h2 class="setup-heading">👋 Hello! Please select yourself from this list</h2>
+        <div class="searchable-select-wrap buffer-input-wrap" id="showTimesAsWrap">
+          <input type="text" id="showTimesAsInput" class="searchable-select-input" placeholder="Search your name or UTC..." autocomplete="off" />
+          <input type="hidden" id="showTimesAsValue" value="" />
+          <input type="hidden" id="showTimesAsName" value="" />
+          <div id="showTimesAsDropdown" class="searchable-select-dropdown" hidden></div>
+        </div>
+        <p class="hint-inline">We assume you'll attend. Check below if you won't:</p>
+        <label class="checkbox-label checkbox-not-attend">
+          <input type="checkbox" id="iWillNotAttend" /> I will not attend this meeting!
+        </label>
+      </section>
+
+      <section class="setup-col setup-col-attendees">
+        <h2 class="setup-heading">👥 Select who you need a meeting</h2>
+        <div class="setup-field">
+          <label>Filter by team</label>
+          <select id="teamFilter">
+            <option value="">All Teams</option>
+          </select>
+        </div>
+        <p class="hint-inline">Include specific people (leave empty for everyone in the team):</p>
+        <div class="name-picker-wrap">
+          <input type="text" id="nameSearch" class="name-search" placeholder="Search by name..." autocomplete="off" />
+          <div id="nameDropdown" class="name-dropdown" hidden></div>
+          <div id="selectedChips" class="selected-chips"></div>
+        </div>
+        <button type="button" id="clearSelection" class="btn-secondary">Clear selection</button>
+      </section>
+
+      <section class="setup-col setup-col-date">
+        <h2 class="setup-heading">📅 Select a date!</h2>
+        <button type="button" id="toggleCalendarBtn" class="btn-calendar-toggle">Show calendar</button>
+        <div class="meeting-date-calendar-wrap" id="meetingDateCalendarWrap" hidden>
+          <label class="checkbox-label calendar-any">
+            <input type="checkbox" id="meetingDateAny" /> ✅ Any date (use today)
+          </label>
+          <label class="calendar-label">Select one or more dates:</label>
+          <div class="mini-calendar">
+            <div class="mini-calendar-header">
+              <button type="button" id="calendarPrevMonth" aria-label="Previous month">‹</button>
+              <span id="calendarMonthYear"></span>
+              <button type="button" id="calendarNextMonth" aria-label="Next month">›</button>
+            </div>
+            <div class="mini-calendar-weekdays">
+              <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+            </div>
+            <div id="calendarDays" class="mini-calendar-days"></div>
+          </div>
+        </div>
+        <div class="setup-actions-stack">
+          <button type="button" id="openAddRuleBtn" class="panel-trigger panel-trigger-pop panel-trigger-primary">📌 Block no-meeting time</button>
+        </div>
+      </section>
+
+      <section class="setup-col setup-col-proposed">
+        <h2 class="setup-heading">⭐ Proposed best times</h2>
+        <div id="bestTimes" class="best-times-right" aria-live="polite">
+          <div id="bestTimesList" class="best-times-list">—</div>
+        </div>
+        <button type="button" id="openCreateInviteBtn" class="panel-trigger panel-trigger-pop panel-trigger-primary btn-create-invite">✉️ Create invite</button>
+      </section>
+    </aside>
+  </div>
+
+  <div id="slotDetail" class="slot-detail" aria-live="polite"></div>
+
+  <!-- Add rule side panel -->
+  <div id="addRuleOverlay" class="panel-overlay" aria-hidden="true">
+    <div class="panel-backdrop" id="addRuleBackdrop"></div>
+    <aside id="addRulePanel" class="side-panel" role="dialog" aria-labelledby="addRulePanelTitle">
+      <div class="panel-header">
+        <h2 id="addRulePanelTitle">Block no-meeting time</h2>
+        <button type="button" class="panel-close" id="closeAddRuleBtn" aria-label="Close">×</button>
+      </div>
+      <div class="panel-body">
+        <p class="hint">Block a time range for one person (in their local time). Choose every day or a specific date. They will be counted as &ldquo;blocked&rdquo; in that slot on the heatmap for that date.</p>
+        <div class="add-rule-row">
+          <label>Person</label>
+          <div class="searchable-select-wrap searchable-select-inline" id="rulePersonWrap">
+            <input type="text" id="rulePersonInput" class="searchable-select-input" placeholder="Search by name or team..." autocomplete="off" />
+            <input type="hidden" id="rulePersonValue" value="" />
+            <div id="rulePersonDropdown" class="searchable-select-dropdown" hidden></div>
+          </div>
+          <label>From</label>
+          <input type="time" id="ruleStart" value="09:00" />
+          <label>To</label>
+          <input type="time" id="ruleEnd" value="12:00" />
+        </div>
+        <div class="add-rule-row add-rule-apply">
+          <label>Apply to</label>
+          <label class="radio-label"><input type="radio" name="ruleApplyTo" value="every" checked /> Every day</label>
+          <label class="radio-label"><input type="radio" name="ruleApplyTo" value="specific" /> Specific date</label>
+          <input type="date" id="ruleDate" class="rule-date-input" />
+        </div>
+        <div class="add-rule-row">
+          <button type="button" id="addRuleBtn">Block time</button>
+        </div>
+        <ul id="ruleList" class="rule-list"></ul>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Create invite side panel -->
+  <div id="createInviteOverlay" class="panel-overlay" aria-hidden="true">
+    <div class="panel-backdrop" id="createInviteBackdrop"></div>
+    <aside id="createInvitePanel" class="side-panel" role="dialog" aria-labelledby="createInvitePanelTitle">
+      <div class="panel-header">
+        <h2 id="createInvitePanelTitle">Create invite</h2>
+        <button type="button" class="panel-close" id="closeCreateInviteBtn" aria-label="Close">×</button>
+      </div>
+      <div class="panel-body">
+        <p class="hint">Choose a time (from proposed best or custom). Add attendee emails, then download .ics or open Google/Outlook.</p>
+        <div class="create-invite-row">
+          <label>Meeting time</label>
+          <select id="inviteTimeChoice">
+            <option value="0">Best option 1</option>
+            <option value="1">Best option 2</option>
+            <option value="2">Best option 3</option>
+            <option value="custom">Custom time</option>
+          </select>
+          <span id="inviteTimeCustomWrap" style="display:none;">
+            <input type="time" id="inviteTimeCustom" class="invite-time-custom" value="14:00" step="1800" title="Time in UTC" />
+            <span class="invite-time-utc-hint">(UTC)</span>
+          </span>
+        </div>
+        <div class="create-invite-row">
+          <label>Meeting title</label>
+          <input type="text" id="inviteTitle" value="All Hands" placeholder="Meeting title" />
+        </div>
+        <div class="create-invite-row">
+          <label>Attendee emails (comma or newline separated)</label>
+          <textarea id="inviteEmails" rows="3" placeholder="alice@company.com, bob@company.com"></textarea>
+        </div>
+        <div class="create-invite-row">
+          <label>Duration</label>
+          <select id="inviteDuration">
+            <option value="30">30 min</option>
+            <option value="60" selected>1 hour</option>
+            <option value="90">1.5 hours</option>
+            <option value="120">2 hours</option>
+          </select>
+        </div>
+        <div class="create-invite-actions">
+          <button type="button" id="downloadIcsBtn">Download .ics file</button>
+          <button type="button" id="openGoogleBtn">Open in Google Calendar</button>
+          <button type="button" id="openOutlookBtn">Open in Outlook</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Where is Octa? popup (when Octa is in invite list) -->
+  <div id="whereIsOctaModal" class="where-is-octa-modal" aria-hidden="true" role="dialog" aria-labelledby="whereIsOctaTitle">
+    <div class="where-is-octa-backdrop"></div>
+    <div class="where-is-octa-box">
+      <h3 id="whereIsOctaTitle">Where is Octa?</h3>
+      <p>Octa is in the invite list or in the selected participants. Confirm before creating the invite.</p>
+      <button type="button" id="whereIsOctaOk" class="where-is-octa-ok">OK</button>
+    </div>
+  </div>
+
+  <div id="ticks" aria-hidden="true"></div>
+
+  <script type="module">
+    import { scoreSlots48, rankSlots } from "./scoring.js";
+    import { renderHeatmap, renderTicks, formatTime } from "./heatmap.js";
+
+    let users = [];
+    let pickerCandidates = []; // users currently available to pick (filtered by team)
+    let lastRankedSlots = [];
+    let meetingDateSelected = new Set(); // "YYYY-MM-DD"
+    let calendarCurrentMonth = new Date();
+
+    function toDateISO(d) {
+      return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    }
+
+    function getMeetingDates() {
+      if (document.getElementById("meetingDateAny").checked) {
+        return [toDateISO(new Date())];
+      }
+      const arr = Array.from(meetingDateSelected).sort();
+      if (arr.length === 0) return [toDateISO(new Date())];
+      return arr;
+    }
+
+    function getMeetingDateISO() {
+      return getMeetingDates()[0];
+    }
+
+    function renderCalendar() {
+      const y = calendarCurrentMonth.getFullYear();
+      const m = calendarCurrentMonth.getMonth();
+      document.getElementById("calendarMonthYear").textContent = calendarCurrentMonth.toLocaleString("default", { month: "long", year: "numeric" });
+
+      const first = new Date(y, m, 1);
+      const last = new Date(y, m + 1, 0);
+      const startPad = first.getDay();
+      const daysInMonth = last.getDate();
+
+      const container = document.getElementById("calendarDays");
+      container.innerHTML = "";
+
+      for (let i = 0; i < startPad; i++) {
+        const cell = document.createElement("span");
+        cell.className = "calendar-day calendar-day-pad";
+        container.appendChild(cell);
+      }
+      for (let d = 1; d <= daysInMonth; d++) {
+        const iso = toDateISO(new Date(y, m, d));
+        const cell = document.createElement("button");
+        cell.type = "button";
+        cell.className = "calendar-day";
+        cell.textContent = d;
+        cell.dataset.date = iso;
+        if (meetingDateSelected.has(iso)) cell.classList.add("selected");
+        cell.addEventListener("click", () => {
+          if (meetingDateSelected.has(iso)) meetingDateSelected.delete(iso);
+          else meetingDateSelected.add(iso);
+          renderCalendar();
+          refresh();
+        });
+        container.appendChild(cell);
+      }
+    }
+
+    function aggregateSlots(slotsPerDate) {
+      if (slotsPerDate.length === 0) return [];
+      if (slotsPerDate.length === 1) return slotsPerDate[0];
+      const n = slotsPerDate.length;
+      const first = slotsPerDate[0];
+      return first.map((slot, i) => {
+        let totalScore = 0, greenCount = 0, yellowCount = 0, redCount = 0, blockedCount = 0;
+        const redMap = new Map();
+        slotsPerDate.forEach(slots => {
+          const s = slots[i];
+          totalScore += s.totalScore;
+          greenCount += s.greenCount;
+          yellowCount += s.yellowCount;
+          redCount += s.redCount;
+          blockedCount += s.blockedCount;
+          (s.redParticipants || []).forEach(p => { if (!redMap.has(p.name)) redMap.set(p.name, p); });
+        });
+        return {
+          utcStartMin: slot.utcStartMin,
+          totalScore: Math.round(totalScore / n),
+          greenCount: Math.round(greenCount / n),
+          yellowCount: Math.round(yellowCount / n),
+          redCount: Math.round(redCount / n),
+          blockedCount: Math.round(blockedCount / n),
+          participantsCount: slot.participantsCount,
+          redParticipants: Array.from(redMap.values())
+        };
+      });
+    }
+
+    function getSelectedNames() {
+      const chips = document.querySelectorAll("#selectedChips [data-name]");
+      if (chips.length === 0) return null;
+      return new Set(Array.from(chips).map(c => c.getAttribute("data-name")));
+    }
+
+    function getSelectedTeam() {
+      const v = document.getElementById("teamFilter").value;
+      return v === "" ? null : v;
+    }
+
+    function filterCandidates(query) {
+      const q = (query || "").trim().toLowerCase();
+      if (!q) return pickerCandidates.slice(0, 20);
+      return pickerCandidates.filter(u =>
+        u.name.toLowerCase().includes(q) || (u.team && u.team.toLowerCase().includes(q))
+      ).slice(0, 20);
+    }
+
+    function showDropdown(matches) {
+      const dropdown = document.getElementById("nameDropdown");
+      const selected = getSelectedNames();
+      dropdown.innerHTML = "";
+      if (matches.length === 0) {
+        dropdown.hidden = true;
+        return;
+      }
+      dropdown.hidden = false;
+      matches.forEach(u => {
+        if (selected && selected.has(u.name)) return;
+        const item = document.createElement("button");
+        item.type = "button";
+        item.className = "name-dropdown-item";
+        item.textContent = `${u.name} (${u.team || "—"})`;
+        item.addEventListener("click", () => {
+          addSelected(u.name);
+          document.getElementById("nameSearch").value = "";
+          showDropdown(filterCandidates(""));
+          document.getElementById("nameSearch").focus();
+          refresh();
+        });
+        dropdown.appendChild(item);
+      });
+    }
+
+    function addSelected(name) {
+      const container = document.getElementById("selectedChips");
+      const selected = getSelectedNames();
+      if (selected && selected.has(name)) return;
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      chip.setAttribute("data-name", name);
+      chip.textContent = name;
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "chip-remove";
+      remove.setAttribute("aria-label", `Remove ${name}`);
+      remove.textContent = "×";
+      remove.addEventListener("click", () => {
+        chip.remove();
+        refresh();
+      });
+      chip.appendChild(remove);
+      container.appendChild(chip);
+    }
+
+    function getDisplayTimezone() {
+      const v = document.getElementById("showTimesAsValue").value;
+      if (!v) return true; // UTC
+      return v;
+    }
+
+    function renderBestTimes(rankedSlots, count = 3, participants = null) {
+      const container = document.getElementById("bestTimesList");
+      const top = rankedSlots.slice(0, count);
+      const displayTz = getDisplayTimezone();
+      const dateISO = getMeetingDateISO();
+      if (top.length === 0) {
+        container.textContent = "—";
+        return;
+      }
+      const tzLabel = displayTz === true ? "UTC" : displayTz;
+      const showPerPerson = participants && participants.length > 0 && participants.length < 6;
+      container.innerHTML = "";
+      top.forEach((slot, i) => {
+        const label = formatTime(slot.utcStartMin, displayTz, dateISO);
+        const reds = slot.redParticipants || [];
+        const div = document.createElement("div");
+        div.className = "best-time-slot";
+        div.innerHTML = `<strong>${i + 1}. ${label} (${tzLabel})</strong>`;
+        if (showPerPerson) {
+          const perPerson = document.createElement("div");
+          perPerson.className = "best-time-per-person";
+          perPerson.textContent = participants.map(p => `${p.name}: ${formatTime(slot.utcStartMin, p.timezone, dateISO)}`).join(" · ");
+          div.appendChild(perPerson);
+        }
+        if (reds.length > 0) {
+          const redList = document.createElement("div");
+          redList.className = "best-time-reds";
+          redList.textContent = "In red: " + reds.map(p => `${p.name} (${p.localLabel})`).join(", ") + ". Total = " + reds.length;
+          div.appendChild(redList);
+        }
+        container.appendChild(div);
+      });
+    }
+
+    function populateTeamFilter(usersData) {
+      const teams = [...new Set(usersData.map(u => u.team).filter(Boolean))].sort();
+      const sel = document.getElementById("teamFilter");
+      const current = sel.value;
+      sel.innerHTML = "<option value=\"\">All Teams</option>";
+      teams.forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t;
+        opt.textContent = t;
+        if (t === current) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    function refresh() {
+      const team = getSelectedTeam();
+      const selectedNames = getSelectedNames();
+      const displayTimezone = getDisplayTimezone();
+
+      const dates = getMeetingDates();
+      const yourselfName = document.getElementById("showTimesAsName").value || null;
+      const notAttending = document.getElementById("iWillNotAttend").checked;
+      const excludeNames = notAttending && yourselfName ? new Set([yourselfName]) : null;
+      const includeYourselfName = yourselfName && !notAttending ? yourselfName : null;
+      let slots, participants;
+      if (dates.length === 1) {
+        const result = scoreSlots48(users, { dateISO: dates[0], team, selectedNames, excludeNames, includeYourselfName });
+        slots = result.slots;
+        participants = result.participants;
+      } else {
+        const resultsPerDate = dates.map(dateISO => scoreSlots48(users, { dateISO, team, selectedNames, excludeNames, includeYourselfName }));
+        slots = aggregateSlots(resultsPerDate.map(r => r.slots));
+        participants = resultsPerDate[0].participants;
+      }
+
+      const ranked = rankSlots(slots);
+      lastRankedSlots = ranked;
+      const top3 = ranked.slice(0, 3).map(s => s.utcStartMin);
+
+      renderBestTimes(ranked, 3, participants);
+
+      renderHeatmap(document.getElementById("heatmap"), slots, {
+        topSlots: new Set(top3),
+        displayTimezone,
+        dateISO: getMeetingDateISO(),
+        participants
+      });
+      renderTicks(document.getElementById("ticks"));
+      updateInviteTimeOptions();
+    }
+
+    const showTimesAsOptions = () => [
+      { value: "", label: "UTC", name: "" },
+      ...users.filter(u => u.timezone).map(u => ({ value: u.timezone, label: `${u.name} (${u.timezone})`, name: u.name }))
+    ];
+
+    function filterShowTimesAs(query) {
+      const q = (query || "").trim().toLowerCase();
+      const opts = showTimesAsOptions();
+      if (!q) return opts.slice(0, 25);
+      return opts.filter(o =>
+        o.label.toLowerCase().includes(q)
+      ).slice(0, 25);
+    }
+
+    function showShowTimesAsDropdown(matches) {
+      const dropdown = document.getElementById("showTimesAsDropdown");
+      dropdown.innerHTML = "";
+      if (matches.length === 0) {
+        dropdown.hidden = true;
+        return;
+      }
+      dropdown.hidden = false;
+      matches.forEach(opt => {
+        const item = document.createElement("button");
+        item.type = "button";
+        item.className = "searchable-select-item";
+        item.textContent = opt.label;
+        item.dataset.value = opt.value;
+        item.dataset.label = opt.label;
+        item.dataset.name = opt.name || "";
+        item.addEventListener("click", () => {
+          document.getElementById("showTimesAsValue").value = opt.value;
+          document.getElementById("showTimesAsName").value = opt.name || "";
+          document.getElementById("showTimesAsInput").value = opt.value ? opt.label : "";
+          document.getElementById("showTimesAsInput").placeholder = opt.value ? "" : "UTC";
+          dropdown.hidden = true;
+          refresh();
+        });
+        dropdown.appendChild(item);
+      });
+    }
+
+    function filterRulePerson(query) {
+      const q = (query || "").trim().toLowerCase();
+      if (!q) return users.slice(0, 30);
+      return users.filter(u =>
+        u.name.toLowerCase().includes(q) || (u.team && u.team.toLowerCase().includes(q))
+      ).slice(0, 30);
+    }
+
+    function showRulePersonDropdown(matches) {
+      const dropdown = document.getElementById("rulePersonDropdown");
+      dropdown.innerHTML = "";
+      if (matches.length === 0) {
+        dropdown.hidden = true;
+        return;
+      }
+      dropdown.hidden = false;
+      matches.forEach(u => {
+        const item = document.createElement("button");
+        item.type = "button";
+        item.className = "searchable-select-item";
+        item.textContent = `${u.name} (${u.team || "—"})`;
+        item.dataset.value = u.name;
+        item.dataset.label = `${u.name} (${u.team || "—"})`;
+        item.addEventListener("click", () => {
+          document.getElementById("rulePersonValue").value = u.name;
+          document.getElementById("rulePersonInput").value = `${u.name} (${u.team || "—"})`;
+          dropdown.hidden = true;
+        });
+        dropdown.appendChild(item);
+      });
+    }
+
+    function addRule() {
+      const name = document.getElementById("rulePersonValue").value;
+      const start = document.getElementById("ruleStart").value;
+      const end = document.getElementById("ruleEnd").value;
+      if (!name || !start || !end) return;
+      const applyTo = document.querySelector("input[name=ruleApplyTo]:checked").value;
+      const date = applyTo === "specific" ? document.getElementById("ruleDate").value : undefined;
+      if (applyTo === "specific" && !date) return;
+      const user = users.find(u => u.name === name);
+      if (!user) return;
+      if (!Array.isArray(user.noMeetingWindows)) user.noMeetingWindows = [];
+      user.noMeetingWindows.push({ start, end, ...(date ? { date } : {}) });
+      renderRuleList();
+      refresh();
+    }
+
+    function removeRule(name, index) {
+      const user = users.find(u => u.name === name);
+      if (!user || !user.noMeetingWindows) return;
+      user.noMeetingWindows.splice(index, 1);
+      renderRuleList();
+      refresh();
+    }
+
+    function getInviteEventUtcStartMin() {
+      const choice = document.getElementById("inviteTimeChoice").value;
+      if (choice === "custom") {
+        const customTime = document.getElementById("inviteTimeCustom").value; // "HH:mm"
+        if (!customTime) return lastRankedSlots[0] ? lastRankedSlots[0].utcStartMin : 0;
+        const [h, m] = customTime.split(":").map(Number);
+        return (h || 0) * 60 + (m || 0);
+      }
+      const idx = parseInt(choice, 10);
+      const slot = lastRankedSlots[idx];
+      if (!slot) return lastRankedSlots[0] ? lastRankedSlots[0].utcStartMin : 0;
+      return slot.utcStartMin;
+    }
+
+    function getInviteEvent() {
+      if (lastRankedSlots.length === 0) return null;
+      const utcStartMin = getInviteEventUtcStartMin();
+      const duration = parseInt(document.getElementById("inviteDuration").value, 10) || 60;
+      const title = (document.getElementById("inviteTitle").value || "Meeting").trim();
+      return {
+        dateISO: getMeetingDateISO(),
+        utcStartMin,
+        durationMinutes: duration,
+        title
+      };
+    }
+
+    function updateInviteTimeOptions() {
+      const sel = document.getElementById("inviteTimeChoice");
+      const displayTz = getDisplayTimezone();
+      const tzLabel = displayTz === true ? "UTC" : displayTz;
+      [0, 1, 2].forEach(i => {
+        const opt = sel.options[i];
+        const slot = lastRankedSlots[i];
+        opt.textContent = slot
+          ? `Best option ${i + 1} (${formatTime(slot.utcStartMin, displayTz, getMeetingDateISO())} ${tzLabel})`
+          : `Best option ${i + 1}`;
+      });
+    }
+
+    function parseEmails(text) {
+      return (text || "")
+        .split(/[\s,;\n]+/)
+        .map(e => e.trim().toLowerCase())
+        .filter(e => e && e.includes("@"));
+    }
+
+    function shouldAskWhereIsOcta() {
+      const raw = (document.getElementById("inviteEmails").value || "").toLowerCase();
+      if (raw.includes("octa")) return true;
+      const selected = getSelectedNames();
+      if (selected && selected.has("Octa")) return true;
+      return false;
+    }
+
+    function showWhereIsOctaModal() {
+      return new Promise(resolve => {
+        const modal = document.getElementById("whereIsOctaModal");
+        modal.classList.add("is-open");
+        modal.setAttribute("aria-hidden", "false");
+        const onClose = () => {
+          modal.classList.remove("is-open");
+          modal.setAttribute("aria-hidden", "true");
+          document.getElementById("whereIsOctaOk").removeEventListener("click", onClose);
+          document.querySelector("#whereIsOctaModal .where-is-octa-backdrop").removeEventListener("click", onClose);
+          resolve();
+        };
+        document.getElementById("whereIsOctaOk").addEventListener("click", onClose);
+        document.querySelector("#whereIsOctaModal .where-is-octa-backdrop").addEventListener("click", onClose);
+      });
+    }
+
+    function maybeAskWhereIsOcta(thenDo) {
+      if (shouldAskWhereIsOcta()) {
+        showWhereIsOctaModal().then(thenDo);
+      } else {
+        thenDo();
+      }
+    }
+
+    function formatICSDate(date) {
+      return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+    }
+
+    function inviteStartEnd(ev) {
+      const [y, m, d] = ev.dateISO.split("-").map(Number);
+      const start = new Date(Date.UTC(y, m - 1, d, 0, 0));
+      start.setUTCMinutes(ev.utcStartMin);
+      const end = new Date(start.getTime() + ev.durationMinutes * 60 * 1000);
+      return { start, end };
+    }
+
+    function downloadICS() {
+      const ev = getInviteEvent();
+      if (!ev) {
+        alert("No proposed time available. Change filters and try again.");
+        return;
+      }
+      maybeAskWhereIsOcta(() => {
+        doDownloadICS(ev);
+      });
+    }
+
+    function doDownloadICS(ev) {
+      const emails = parseEmails(document.getElementById("inviteEmails").value);
+      const { start, end } = inviteStartEnd(ev);
+      const now = new Date();
+      const uid = `meeting-${now.getTime()}@heatmap`;
+      const summary = (ev.title || "Meeting").replace(/\n/g, " ").replace(/[,;\\]/g, "\\$&");
+      let ics = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//Meeting Optimizer//EN",
+        "BEGIN:VEVENT",
+        "UID:" + uid,
+        "DTSTAMP:" + formatICSDate(now),
+        "DTSTART:" + formatICSDate(start),
+        "DTEND:" + formatICSDate(end),
+        "SUMMARY:" + summary
+      ];
+      emails.forEach(email => {
+        ics.push("ATTENDEE;CN=" + email + ";RSVP=TRUE:mailto:" + email);
+      });
+      ics.push("END:VEVENT", "END:VCALENDAR");
+      const blob = new Blob([ics.join("\r\n")], { type: "text/calendar;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = (ev.title || "invite").replace(/[^\w\s-]/g, "") + ".ics";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function openGoogleCalendar() {
+      const ev = getInviteEvent();
+      if (!ev) {
+        alert("No proposed time available. Change filters and try again.");
+        return;
+      }
+      maybeAskWhereIsOcta(() => {
+        doOpenGoogleCalendar(ev);
+      });
+    }
+
+    function doOpenGoogleCalendar(ev) {
+      const emails = parseEmails(document.getElementById("inviteEmails").value);
+      const [y, m, d] = ev.dateISO.split("-").map(Number);
+      const startHour = Math.floor(ev.utcStartMin / 60);
+      const startMin = ev.utcStartMin % 60;
+      const endMin = ev.utcStartMin + ev.durationMinutes;
+      const endHour = Math.floor(endMin / 60);
+      const endMinRem = endMin % 60;
+      const pad = n => String(n).padStart(2, "0");
+      const startStr = `${y}${pad(m)}${pad(d)}T${pad(startHour)}${pad(startMin)}00Z`;
+      const endStr = `${y}${pad(m)}${pad(d)}T${pad(endHour)}${pad(endMinRem)}00Z`;
+      const params = new URLSearchParams({
+        action: "TEMPLATE",
+        text: ev.title,
+        dates: startStr + "/" + endStr
+      });
+      if (emails.length) params.set("add", emails.join(","));
+      window.open("https://calendar.google.com/calendar/render?" + params.toString(), "_blank", "noopener");
+    }
+
+    function openOutlook() {
+      const ev = getInviteEvent();
+      if (!ev) {
+        alert("No proposed time available. Change filters and try again.");
+        return;
+      }
+      maybeAskWhereIsOcta(() => {
+        doOpenOutlook(ev);
+      });
+    }
+
+    function doOpenOutlook(ev) {
+      const { start, end } = inviteStartEnd(ev);
+      const params = new URLSearchParams({
+        path: "/calendar/action/compose",
+        rru: "addevent",
+        subject: ev.title,
+        startdt: start.toISOString(),
+        enddt: end.toISOString()
+      });
+      const emails = parseEmails(document.getElementById("inviteEmails").value);
+      if (emails.length) params.set("to", emails.join(","));
+      window.open("https://outlook.live.com/calendar/0/action/compose?" + params.toString(), "_blank", "noopener");
+    }
+
+    function renderRuleList() {
+      const list = document.getElementById("ruleList");
+      list.innerHTML = "";
+      users.forEach(u => {
+        (u.noMeetingWindows || []).forEach((w, i) => {
+          const li = document.createElement("li");
+          const when = w.date ? ` on ${w.date}` : " (every day)";
+          li.innerHTML = `${u.name}: ${w.start}–${w.end}${when} <button type="button" class="rule-remove" data-name="${u.name.replace(/"/g, "&quot;")}" data-i="${i}">Remove</button>`;
+          list.appendChild(li);
+        });
+      });
+      list.querySelectorAll(".rule-remove").forEach(btn => {
+        btn.addEventListener("click", () => removeRule(btn.getAttribute("data-name"), parseInt(btn.getAttribute("data-i"), 10)));
+      });
+    }
+
+    async function main() {
+      try {
+        const res = await fetch("./data/users.json");
+        const raw = await res.json();
+        users = raw.map(u => ({ ...u, noMeetingWindows: [...(u.noMeetingWindows || [])] }));
+      } catch (e) {
+        console.warn("Could not load users.json (run from a local server or check path):", e);
+        users = [];
+      }
+
+      populateTeamFilter(users);
+      pickerCandidates = users.filter(u => u.name);
+
+      const showTimesAsInput = document.getElementById("showTimesAsInput");
+      const showTimesAsDropdown = document.getElementById("showTimesAsDropdown");
+      showTimesAsInput.addEventListener("input", () => showShowTimesAsDropdown(filterShowTimesAs(showTimesAsInput.value)));
+      showTimesAsInput.addEventListener("focus", () => showShowTimesAsDropdown(filterShowTimesAs(showTimesAsInput.value)));
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest("#showTimesAsWrap")) showTimesAsDropdown.hidden = true;
+      });
+
+      const rulePersonInput = document.getElementById("rulePersonInput");
+      const rulePersonDropdown = document.getElementById("rulePersonDropdown");
+      rulePersonInput.addEventListener("input", () => showRulePersonDropdown(filterRulePerson(rulePersonInput.value)));
+      rulePersonInput.addEventListener("focus", () => showRulePersonDropdown(filterRulePerson(rulePersonInput.value)));
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest("#rulePersonWrap")) rulePersonDropdown.hidden = true;
+      });
+      document.getElementById("nameSearch").addEventListener("input", () => {
+        showDropdown(filterCandidates(document.getElementById("nameSearch").value));
+      });
+      document.getElementById("nameSearch").addEventListener("focus", () => {
+        showDropdown(filterCandidates(document.getElementById("nameSearch").value));
+      });
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest(".name-picker-wrap")) document.getElementById("nameDropdown").hidden = true;
+      });
+
+      document.getElementById("meetingDateAny").addEventListener("change", refresh);
+      document.getElementById("iWillNotAttend").addEventListener("change", refresh);
+
+      document.getElementById("toggleCalendarBtn").addEventListener("click", () => {
+        const wrap = document.getElementById("meetingDateCalendarWrap");
+        const btn = document.getElementById("toggleCalendarBtn");
+        const isHidden = wrap.hidden;
+        wrap.hidden = !isHidden;
+        btn.textContent = isHidden ? "Hide calendar" : "Show calendar";
+      });
+
+      meetingDateSelected.add(toDateISO(new Date()));
+      renderCalendar();
+      document.getElementById("calendarPrevMonth").addEventListener("click", () => {
+        calendarCurrentMonth.setMonth(calendarCurrentMonth.getMonth() - 1);
+        renderCalendar();
+      });
+      document.getElementById("calendarNextMonth").addEventListener("click", () => {
+        calendarCurrentMonth.setMonth(calendarCurrentMonth.getMonth() + 1);
+        renderCalendar();
+      });
+
+      document.getElementById("teamFilter").addEventListener("change", () => {
+        const team = getSelectedTeam();
+        pickerCandidates = team ? users.filter(u => u.team === team) : users.filter(u => u.name);
+        document.getElementById("selectedChips").innerHTML = "";
+        refresh();
+      });
+
+      document.querySelectorAll("input[name=ruleApplyTo]").forEach(radio => {
+        radio.addEventListener("change", () => {
+          document.getElementById("ruleDate").style.visibility = document.querySelector("input[name=ruleApplyTo]:checked").value === "specific" ? "visible" : "hidden";
+        });
+      });
+      document.getElementById("ruleDate").style.visibility = "hidden";
+
+      document.getElementById("clearSelection").addEventListener("click", () => {
+        document.getElementById("selectedChips").innerHTML = "";
+        refresh();
+      });
+
+
+      document.getElementById("addRuleBtn").addEventListener("click", addRule);
+
+      document.getElementById("inviteTimeChoice").addEventListener("change", () => {
+        const isCustom = document.getElementById("inviteTimeChoice").value === "custom";
+        document.getElementById("inviteTimeCustomWrap").style.display = isCustom ? "inline-block" : "none";
+      });
+
+      document.getElementById("downloadIcsBtn").addEventListener("click", downloadICS);
+      document.getElementById("openGoogleBtn").addEventListener("click", openGoogleCalendar);
+      document.getElementById("openOutlookBtn").addEventListener("click", openOutlook);
+
+      function openAddRulePanel() {
+        const el = document.getElementById("addRuleOverlay");
+        el.classList.add("is-open");
+        el.setAttribute("aria-hidden", "false");
+        document.body.classList.add("panel-open");
+      }
+      function closeAddRulePanel() {
+        document.getElementById("addRuleOverlay").classList.remove("is-open");
+        document.getElementById("addRuleOverlay").setAttribute("aria-hidden", "true");
+        document.body.classList.remove("panel-open");
+      }
+      function openCreateInvitePanel() {
+        document.getElementById("createInviteOverlay").classList.add("is-open");
+        document.getElementById("createInviteOverlay").setAttribute("aria-hidden", "false");
+        document.body.classList.add("panel-open");
+      }
+      function closeCreateInvitePanel() {
+        document.getElementById("createInviteOverlay").classList.remove("is-open");
+        document.getElementById("createInviteOverlay").setAttribute("aria-hidden", "true");
+        document.body.classList.remove("panel-open");
+      }
+
+      document.getElementById("openAddRuleBtn").addEventListener("click", openAddRulePanel);
+      document.getElementById("closeAddRuleBtn").addEventListener("click", closeAddRulePanel);
+      document.getElementById("addRuleBackdrop").addEventListener("click", closeAddRulePanel);
+
+      document.getElementById("openCreateInviteBtn").addEventListener("click", openCreateInvitePanel);
+      document.getElementById("closeCreateInviteBtn").addEventListener("click", closeCreateInvitePanel);
+      document.getElementById("createInviteBackdrop").addEventListener("click", closeCreateInvitePanel);
+
+      refresh();
+    }
+
+    main();
+  </script>
+</body>
+</html>
