@@ -27,7 +27,7 @@
 
     <section class="buffer-banner">
       <p class="buffer-banner-text">Hey BUFFER! 👋✨</p>
-      <a href="buffer.html" target="_blank" rel="noopener noreferrer" class="buffer-cta-button">Check this! 👀</a>
+      <a href="buffer.html" target="_blank" rel="noopener noreferrer" class="buffer-cta-button" id="bufferPageLink">Check this! 👀</a>
     </section>
 
     <section id="about">
@@ -285,6 +285,16 @@
     </footer>
   </main>
   <script>
+    // Fix "Check this!" link for GitHub Pages (works when site is in subfolder e.g. /portfolio/)
+    document.addEventListener('DOMContentLoaded', function() {
+      var bufferLink = document.getElementById('bufferPageLink');
+      if (bufferLink && location.pathname) {
+        var path = location.pathname;
+        var base = path.endsWith('/') ? path : (path.lastIndexOf('/') > 0 ? path.substring(0, path.lastIndexOf('/') + 1) : path + '/');
+        bufferLink.href = base + 'buffer.html';
+      }
+    });
+
     // Show hero, buffer banner, and About section by default
     document.addEventListener('DOMContentLoaded', function() {
       const sections = document.querySelectorAll('section, footer');
@@ -411,8 +421,3 @@
   </script>
 </body>
 </html>
-
-  </script>
-</body>
-</html>
-
