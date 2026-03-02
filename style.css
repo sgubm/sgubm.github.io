@@ -119,6 +119,66 @@ body::before {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
+/* Buffer-style banner – green and rounded aesthetic inspired by buffer.com */
+.buffer-banner {
+  background: #22b35c;
+  color: #fff;
+  text-align: center;
+  padding: 3rem 2rem;
+  margin: 0 -2rem 4rem;
+  border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(34, 179, 92, 0.25);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.buffer-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.buffer-banner-text {
+  font-size: 2.5rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  position: relative;
+  text-align: center;
+  width: 100%;
+}
+
+.buffer-cta-button {
+  display: inline-block;
+  background: #fff;
+  color: #22b35c;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.85rem 2rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  position: relative;
+}
+
+.buffer-cta-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  background: #f7f7f7;
+}
+
 .hero h1 {
   font-size: 2.8rem;
   font-weight: 400;
@@ -661,6 +721,19 @@ a:hover {
 }
 
 @media (max-width: 768px) {
+  .buffer-banner {
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+    padding: 2rem 1rem;
+    border-radius: 16px;
+  }
+  .buffer-banner-text {
+    font-size: 1.8rem;
+  }
+  .buffer-cta-button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
   .main-nav ul {
     gap: 1.5rem;
     padding: 0 1rem;
@@ -780,3 +853,4 @@ a:hover {
     padding: 0.875rem 2rem;
   }
 }
+
