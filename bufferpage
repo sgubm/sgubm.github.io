@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Check this – Buffer</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .buffer-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem 2rem 4rem;
+    }
+    .buffer-page h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: #33691e;
+      font-weight: 600;
+    }
+    .buffer-page .back-link {
+      display: inline-block;
+      margin-bottom: 2rem;
+      color: #5B9BD5;
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+    .buffer-page .back-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Instagram-style post frame */
+    .carousel-frame {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+
+    .carousel-header {
+      padding: 12px 16px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #efefef;
+    }
+    .carousel-header .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7cb342, #33691e);
+    }
+    .carousel-header .username {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #262626;
+    }
+
+    .carousel-viewport {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      overflow: hidden;
+      touch-action: pan-y pinch-zoom;
+    }
+
+    .carousel-track {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.35s ease-out;
+    }
+
+    .carousel-slide {
+      flex: 0 0 100%;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      box-sizing: border-box;
+    }
+    .carousel-slide.slide-1 { background: linear-gradient(160deg, #f8f9fa 0%, #e9ecef 100%); }
+    .carousel-slide.slide-2 { background: #f1f3f5; }
+    .carousel-slide.slide-3 { background: linear-gradient(180deg, #e8eaed 0%, #dadce0 100%); }
+    .carousel-slide.slide-4 { background: #f5f5f5; }
+    .carousel-slide.slide-5 { background: linear-gradient(160deg, #eef0f2 0%, #e2e6ea 100%); }
+    .slide-content {
+      text-align: center;
+      max-width: 320px;
+      width: 100%;
+    }
+    .slide-content .slide-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      line-height: 1.35;
+      margin-bottom: 0.5rem;
+    }
+    .slide-content .slide-title-lg {
+      font-size: 1.5rem;
+    }
+    .slide-content .slide-subtitle {
+      font-size: 0.8rem;
+      color: #555;
+      margin-top: 1rem;
+      letter-spacing: 0.03em;
+    }
+    .slide-content .slide-subtext {
+      font-size: 0.75rem;
+      color: #666;
+      margin-top: 0.75rem;
+      line-height: 1.4;
+    }
+    .slide-content .slide-list {
+      list-style: none;
+      padding: 0;
+      margin: 0.75rem 0 0;
+      font-size: 0.8rem;
+      color: #444;
+      line-height: 1.6;
+    }
+    .slide-content .slide-footer {
+      font-size: 0.7rem;
+      color: #666;
+      margin-top: 1.25rem;
+      font-style: italic;
+    }
+    .carousel-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    /* Dots like Instagram multi-photo posts */
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 0;
+      background: #fff;
+      border-bottom: 1px solid #efefef;
+    }
+    .carousel-dots span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #c7c7c7;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .carousel-dots span.active {
+      background: #0095f6;
+      transform: scale(1.2);
+    }
+
+    /* Arrows for desktop */
+    .carousel-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.9);
+      color: #333;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      transition: background 0.2s, opacity 0.2s;
+      opacity: 0.85;
+    }
+    .carousel-arrow:hover {
+      background: #fff;
+      opacity: 1;
+    }
+    .carousel-arrow.prev { left: 12px; }
+    .carousel-arrow.next { right: 12px; }
+    .carousel-arrow[disabled] {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .carousel-caption {
+      padding: 14px 16px;
+      background: #fff;
+      font-size: 0.95rem;
+      color: #262626;
+      line-height: 1.4;
+      text-align: left;
+    }
+    .carousel-caption strong { color: #262626; }
+
+    .buffer-story {
+      max-width: 520px;
+      margin-top: 2.5rem;
+      text-align: left;
+    }
+    .buffer-story .story-heading {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #262626;
+      margin-bottom: 1rem;
+    }
+    .buffer-story .story-heading a {
+      color: #16884B;
+      text-decoration: none;
+      border-bottom: 1px solid #16884B;
+    }
+    .buffer-story .story-heading a:hover {
+      opacity: 0.85;
+    }
+    .buffer-story p a {
+      color: #16884B;
+      text-decoration: none;
+      border-bottom: 1px solid #16884B;
+    }
+    .buffer-story p a:hover {
+      opacity: 0.85;
+    }
+    .buffer-story p {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: #333;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <div class="buffer-page">
+      <a href="index.html" class="back-link">← Back to portfolio</a>
+      <h1>Hey Buffer!</h1>
+      <p style="margin-bottom: 1.5rem; color: #555;">Come meet me!</p>
+
+      <div class="carousel-frame">
+        <div class="carousel-header">
+          <div class="avatar"></div>
+          <span class="username">sara.uberti</span>
+        </div>
+
+        <div class="carousel-viewport">
+          <button type="button" class="carousel-arrow prev" id="carouselPrev" aria-label="Previous">‹</button>
+          <button type="button" class="carousel-arrow next" id="carouselNext" aria-label="Next">›</button>
+
+          <div class="carousel-track" id="carouselTrack">
+            <div class="carousel-slide slide-1">
+              <div class="slide-content">
+                <p class="slide-title slide-title-lg">Hello, I'm Sara.<br>And I love building systems.</p>
+                <p class="slide-subtitle">Operations &amp; Automation Specialist</p>
+              </div>
+            </div>
+            <div class="carousel-slide slide-2">
+              <div class="slide-content">
+                <p class="slide-title">INTERNATIONAL BY DEFAULT 🌍</p>
+                <p class="slide-subtitle">4 languages · 3 cities · Remote-native</p>
+                <p class="slide-subtext">I think globally. I work asynchronously. I adapt fast.</p>
+              </div>
+            </div>
+            <div class="carousel-slide slide-3">
+              <div class="slide-content">
+                <p class="slide-title">I work at the intersection of<br>Law × Operations × Technology</p>
+                <p class="slide-subtext">I build systems.<br>I manage knowledge.<br>I reduce friction.</p>
+              </div>
+            </div>
+            <div class="carousel-slide slide-4">
+              <div class="slide-content">
+                <p class="slide-title">If you need something —<br>I'm the hub.</p>
+                <p class="slide-subtext">Corporate · Litigation · Vendors · Governments · HR · Finance · Cybersecurity</p>
+                <p class="slide-subtext">I connect the dots so teams can move faster.</p>
+              </div>
+            </div>
+            <div class="carousel-slide slide-5">
+              <div class="slide-content">
+                <p class="slide-title">I'm not shy about new challenges.<br>I prototype. I improve. I ship.</p>
+                <p class="slide-subtext">And I'd love to do it at Buffer.</p>
+                <p class="slide-footer">Let me show you what I can build.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="carousel-dots" id="carouselDots"></div>
+
+        <div class="carousel-caption">
+          <strong>sara.uberti</strong> Hey! Scroll through the carousel 👆
+        </div>
+      </div>
+
+      <div class="buffer-story">
+        <p class="story-heading">I built something!! 😊 You can check it out <a href="https://sgubm.github.io/buffer-project/" target="_blank" rel="noopener noreferrer">here</a>.</p>
+        <p>After I applied for Buffer’s new Operations &amp; Automations role, I kept thinking about it and how exciting the opportunity is. ✨ So I decided to test myself and, using the publicly available data about where the team is distributed, I created a small prototype that explores how to coordinate meetings across time zones more fairly. It’s an early version, but fully usable. 🌍⏰</p>
+        <p>I currently work remotely at Fever (a global SaaS company), so I live the timezone juggling daily. 🏠 My background leans toward legal/ops, which means I often coordinate across teams, including social media team which lets me do some fun stuff! 🎉 In fact, I was just on <a href="https://www.tiktok.com/@madrid_secreto?_r=1&_t=ZN-94IuHlSZYla" target="_blank" rel="noopener noreferrer">Secret Media Network</a> TikTok opening some candy… 🍬📱</p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function() {
+      const track = document.getElementById('carouselTrack');
+      const dotsContainer = document.getElementById('carouselDots');
+      const prevBtn = document.getElementById('carouselPrev');
+      const nextBtn = document.getElementById('carouselNext');
+      const slides = track.querySelectorAll('.carousel-slide');
+      const total = slides.length;
+      let index = 0;
+
+      function updateCarousel() {
+        track.style.transform = 'translateX(-' + (index * 100) + '%)';
+        prevBtn.disabled = index === 0;
+        nextBtn.disabled = index === total - 1;
+        dotsContainer.querySelectorAll('span').forEach((dot, i) => {
+          dot.classList.toggle('active', i === index);
+        });
+      }
+
+      for (let i = 0; i < total; i++) {
+        const dot = document.createElement('span');
+        dot.setAttribute('role', 'button');
+        dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+        if (i === 0) dot.classList.add('active');
+        dot.addEventListener('click', function() {
+          index = i;
+          updateCarousel();
+        });
+        dotsContainer.appendChild(dot);
+      }
+
+      prevBtn.addEventListener('click', function() {
+        if (index > 0) {
+          index--;
+          updateCarousel();
+        }
+      });
+      nextBtn.addEventListener('click', function() {
+        if (index < total - 1) {
+          index++;
+          updateCarousel();
+        }
+      });
+
+      let touchStartX = 0;
+      let touchEndX = 0;
+      track.parentElement.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+      }, { passive: true });
+      track.parentElement.addEventListener('touchend', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        var diff = touchStartX - touchEndX;
+        if (Math.abs(diff) > 50) {
+          if (diff > 0 && index < total - 1) {
+            index++;
+            updateCarousel();
+          } else if (diff < 0 && index > 0) {
+            index--;
+            updateCarousel();
+          }
+        }
+      }, { passive: true });
+
+      updateCarousel();
+    })();
+  </script>
+</body>
+</html>
