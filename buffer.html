@@ -204,38 +204,144 @@
     }
     .carousel-caption strong { color: #262626; }
 
-    .buffer-story {
-      max-width: 520px;
+    /* Expandable boxes (accordion) below carousel */
+    .buffer-accordion {
+      max-width: 720px;
       margin-top: 2.5rem;
-      text-align: left;
+      width: 100%;
     }
-    .buffer-story .story-heading {
-      font-size: 1.25rem;
+    .accordion-box {
+      border: none;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .accordion-box:hover {
+      box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    }
+    /* Hero box: I built something - pops up more, open by default */
+    .accordion-box--hero {
+      margin-bottom: 1.25rem;
+      border: 2px solid #22b35c;
+      box-shadow: 0 4px 16px rgba(34, 179, 92, 0.25);
+    }
+    .accordion-box--hero .accordion-trigger {
+      padding: 1.25rem 1.5rem;
+      font-size: 1.2rem;
+      background: linear-gradient(135deg, #22b35c 0%, #16884B 100%);
+      color: #fff;
+    }
+    .accordion-box--hero .accordion-trigger:hover {
+      background: linear-gradient(135deg, #28c968 0%, #1a9a55 100%);
+    }
+    .accordion-box--hero .accordion-trigger::after {
+      color: #fff;
+    }
+    .accordion-box--hero .accordion-inner {
+      border-top-color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.98);
+    }
+    /* 2x2 grid for the other 4 boxes */
+    .accordion-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+    .accordion-grid .accordion-box {
+      margin-bottom: 0;
+    }
+    /* Colorful boxes */
+    .accordion-box--c1 .accordion-trigger { background: linear-gradient(135deg, #5B9BD5 0%, #4A8BC2 100%); color: #fff; }
+    .accordion-box--c1 .accordion-trigger::after { color: #fff; }
+    .accordion-box--c1 .accordion-trigger:hover { background: linear-gradient(135deg, #6ba8e0 0%, #5B9BD5 100%); }
+    .accordion-box--c2 .accordion-trigger { background: linear-gradient(135deg, #E91E63 0%, #C2185B 100%); color: #fff; }
+    .accordion-box--c2 .accordion-trigger::after { color: #fff; }
+    .accordion-box--c2 .accordion-trigger:hover { background: linear-gradient(135deg, #f06292 0%, #E91E63 100%); }
+    .accordion-box--c3 .accordion-trigger { background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%); color: #fff; }
+    .accordion-box--c3 .accordion-trigger::after { color: #fff; }
+    .accordion-box--c3 .accordion-trigger:hover { background: linear-gradient(135deg, #ffb74d 0%, #FF9800 100%); }
+    .accordion-box--c4 .accordion-trigger { background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%); color: #fff; }
+    .accordion-box--c4 .accordion-trigger::after { color: #fff; }
+    .accordion-box--c4 .accordion-trigger:hover { background: linear-gradient(135deg, #ba68c8 0%, #9C27B0 100%); }
+    .accordion-trigger {
+      width: 100%;
+      padding: 0.9rem 1.1rem;
+      text-align: left;
+      font-size: 0.95rem;
       font-weight: 600;
       color: #262626;
-      margin-bottom: 1rem;
+      background: #f8f9fa;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.2s;
     }
-    .buffer-story .story-heading a {
+    .accordion-trigger:hover {
+      background: #eef0f2;
+    }
+    .accordion-trigger::after {
+      content: '+';
+      font-size: 1.2rem;
       color: #16884B;
-      text-decoration: none;
-      border-bottom: 1px solid #16884B;
+      transition: transform 0.25s;
     }
-    .buffer-story .story-heading a:hover {
-      opacity: 0.85;
+    .accordion-box.is-open .accordion-trigger::after {
+      transform: rotate(45deg);
     }
-    .buffer-story p a {
-      color: #16884B;
-      text-decoration: none;
-      border-bottom: 1px solid #16884B;
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease-out;
     }
-    .buffer-story p a:hover {
-      opacity: 0.85;
+    .accordion-box.is-open .accordion-content {
+      max-height: 2400px;
     }
-    .buffer-story p {
+    .accordion-inner {
+      padding: 1.25rem 1.5rem 1.5rem;
+      border-top: 1px solid #eee;
       font-size: 0.95rem;
       line-height: 1.7;
       color: #333;
+      text-align: left;
+      background: #fff;
+      max-width: 100%;
+      min-width: 0;
+    }
+    .accordion-inner p {
       margin-bottom: 1rem;
+    }
+    .accordion-inner p:last-child {
+      margin-bottom: 0;
+    }
+    .accordion-inner a {
+      color: #16884B;
+      text-decoration: none;
+      border-bottom: 1px solid #16884B;
+    }
+    .accordion-inner a:hover {
+      opacity: 0.85;
+    }
+    .accordion-inner .story-heading {
+      font-weight: 600;
+      color: #262626;
+      margin-bottom: 0.75rem;
+    }
+    .accordion-inner .gnome-icon {
+      width: 32px;
+      height: 32px;
+      vertical-align: middle;
+      margin-left: 4px;
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+    }
+    @media (max-width: 500px) {
+      .accordion-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -300,10 +406,90 @@
         </div>
       </div>
 
-      <div class="buffer-story">
-        <p class="story-heading">I built something!! 😊 You can check it out <a href="https://sgubm.github.io/buffer-project/" target="_blank" rel="noopener noreferrer">here</a>.</p>
-        <p>After I applied for Buffer’s new Operations &amp; Automations role, I kept thinking about it and how exciting the opportunity is. ✨ So I decided to test myself and, using the publicly available data about where the team is distributed, I created a small prototype that explores how to coordinate meetings across time zones more fairly. It’s an early version, but fully usable. 🌍⏰</p>
-        <p>I currently work remotely at Fever (a global SaaS company), so I live the timezone juggling daily. 🏠 My background leans toward legal/ops, which means I often coordinate across teams, including social media team which lets me do some fun stuff! 🎉 In fact, I was just on <a href="https://www.tiktok.com/@madrid_secreto?_r=1&_t=ZN-94IuHlSZYla" target="_blank" rel="noopener noreferrer">Secret Media Network</a> TikTok opening some candy… 🍬📱</p>
+      <div class="buffer-accordion">
+        <div class="accordion-box accordion-box--hero is-open" data-accordion>
+          <button type="button" class="accordion-trigger" aria-expanded="true">I built something</button>
+          <div class="accordion-content">
+            <div class="accordion-inner">
+              <p class="story-heading">I built something!! 😊 You can check it out <a href="https://sgubm.github.io/buffer-project/" target="_blank" rel="noopener noreferrer">here</a>.</p>
+              <p>After I applied for Buffer’s new Operations &amp; Automations role, I kept thinking about it and how exciting the opportunity is. ✨ So I decided to test myself and, using the publicly available data about where the team is distributed, I created a small prototype that explores how to coordinate meetings across time zones more fairly. It’s an early version, but fully usable. 🌍⏰</p>
+              <p>I currently work remotely at Fever (a global SaaS company), so I live the timezone juggling daily. 🏠 My background leans toward legal/ops, which means I often coordinate across teams, including social media team which lets me do some fun stuff! 🎉</p>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-grid">
+          <div class="accordion-box accordion-box--c1" data-accordion>
+            <button type="button" class="accordion-trigger" aria-expanded="false">Content Creation Experience</button>
+            <div class="accordion-content">
+              <div class="accordion-inner">
+                <p>I said in my application that I do not have much experience and that is true — but I failed to say that I have tried and failed!</p>
+                <p><strong>Chronologically:</strong></p>
+                <ul style="margin: 0.5rem 0 1rem 1.25rem; padding: 0;">
+                  <li><strong>Dr. Carsi Supongo:</strong> I opened the account at 15 trying to help my father out with content for his exposition (created an Instagram, email, etc.).</li>
+                  <li><strong>Vecinasdemaastricht</strong> — was an Instagram page where I shared my adventures with my roommate (sadly the profile was lost).</li>
+                  <li><strong>Planutasconlasutas</strong> — a shared Instagram where me and my friends post about events that we organize!</li>
+                  <li>And lastly, I work at Fever that owns Secret Media Network, so you can actually find me in their latest video <a href="https://www.tiktok.com/@madrid_secreto?_r=1&_t=ZN-94IuHlSZYla" target="_blank" rel="noopener noreferrer">opening some candy</a>.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-box accordion-box--c2" data-accordion>
+            <button type="button" class="accordion-trigger" aria-expanded="false">Knowledge HUB ideas</button>
+            <div class="accordion-content">
+              <div class="accordion-inner">
+                <p><strong>1. Governance &amp; Structure</strong><br>Organizing what gets documented, where it lives (Notion/Drive Indexed), and a clear naming system.</p>
+                <p>2. Smart contribution Automation/gamification<br>for a submission flow that saves document, renames it and adds to index (maybe a nice library gnome). <img src="gnome.png" alt="Library gnome" class="gnome-icon" /></p>
+                <p><strong>3. AI Library style</strong><br>Use agentic power to FIND documents easily, chat to ask what you need. (Again… maybe ask a nice gnome <img src="gnome.png" alt="Library gnome" class="gnome-icon" />)</p>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-box accordion-box--c3" data-accordion>
+            <button type="button" class="accordion-trigger" aria-expanded="false">Dashboards</button>
+            <div class="accordion-content">
+              <div class="accordion-inner">
+                <p><strong>Data, data, data!</strong></p>
+                <p><strong>Two big blocks:</strong></p>
+                <p><strong>Work</strong></p>
+                <ul style="margin: 0.25rem 0 1rem 1.25rem;">
+                  <li>Where do we dedicate most time (Volume)</li>
+                  <li>What tasks take us longer (pain point)</li>
+                  <li>How many new docs/new edits (knowledge increase data)</li>
+                  <li>etc.</li>
+                </ul>
+                <p><strong>Benefits</strong></p>
+                <ul style="margin: 0.25rem 0 1rem 1.25rem;">
+                  <li>Vacations</li>
+                  <li>Books</li>
+                  <li>Meeting Hours</li>
+                  <li>Healthcare</li>
+                  <li>And more!</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-box accordion-box--c4" data-accordion>
+            <button type="button" class="accordion-trigger" aria-expanded="false">Newsletter</button>
+            <div class="accordion-content">
+              <div class="accordion-inner">
+                <p><strong>1. Something old</strong><br>Revisit key knowledge to strengthen retention and keep us sharp! (spaced repetition)</p>
+                <p><strong>2. Something new</strong><br>What is new in our knowledge hub! What are we excited about!</p>
+                <p><strong>3. Something borrowed</strong><br>What Bufferoos recommend! Prompt for music and/or books so we can share some recs.</p>
+                <p style="margin-left:1rem;"><em>E.g.</em></p>
+                <ul style="margin:0.25rem 0 1rem 1.25rem;">
+                  <li>The sun is shining and I'm having a beer with friends</li>
+                  <li>You are the villain but no one knows what you have done yet</li>
+                  <li>History repeats itself</li>
+                </ul>
+                <p><strong>4. Something </strong><span style="text-decoration: line-through;">blue</span><strong> TikTok —</strong> Three trends to try! Internally, or for your profiles or to write about!</p>
+                <p style="margin-left:1rem;"><em>E.g.</em></p>
+                <p style="margin-left:1rem;"><strong>a.</strong> Optimist: The glass is half full. The pessimist: The glass is half empty. <strong>The Bufferoos:</strong> The glass is transparent 👏👏 — or any observation on teammates/Buffer!</p>
+                <p style="margin-left:1rem;"><strong>b.</strong> The &ldquo;I need sunshine&rdquo; — Show next trips, favorite vacation spots or for Bufferoos who live in the other hemisphere and are seeing the cold approach, make it ironic! (sunshine = fireplace)</p>
+                <p style="margin-left:1rem;"><strong>c.</strong> My nervous system thinking a lion is chasing me when I have just .... — started a new job! or found a bug!</p>
+                <p>And lastly, there is no bouquet tossing….but it is always open to suggestions! So there would be a newsletter mailbox! 📬</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </main>
@@ -373,6 +559,21 @@
 
       updateCarousel();
     })();
+
+    // Expandable boxes: click to open/close
+    document.querySelectorAll('[data-accordion]').forEach(function(box) {
+      var trigger = box.querySelector('.accordion-trigger');
+      trigger.addEventListener('click', function() {
+        var isOpen = box.classList.contains('is-open');
+        if (isOpen) {
+          box.classList.remove('is-open');
+          trigger.setAttribute('aria-expanded', 'false');
+        } else {
+          box.classList.add('is-open');
+          trigger.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
   </script>
 </body>
 </html>
