@@ -6,7 +6,7 @@
 
 body {
   font-family: 'Georgia', 'Times New Roman', serif;
-  background: #f5f8fa;
+  background: #F8F5F2;
   color: #000000;
   line-height: 1.8;
   font-size: 16px;
@@ -120,6 +120,7 @@ body::before {
 }
 
 /* Buffer-style banner – green and rounded aesthetic inspired by buffer.com */
+/* Hidden for now — change display to flex + flex-direction/align/justify when re-enabling */
 .buffer-banner {
   background: #22b35c;
   color: #fff;
@@ -130,10 +131,7 @@ body::before {
   box-shadow: 0 2px 12px rgba(34, 179, 92, 0.25);
   position: relative;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  display: none;
 }
 
 .buffer-banner::before {
@@ -185,6 +183,7 @@ body::before {
   margin-bottom: 0.5rem;
   letter-spacing: -0.02em;
   line-height: 1.2;
+  color: #5B9BD5;
 }
 
 .subtitle {
@@ -201,6 +200,46 @@ body::before {
   font-size: 1rem;
   color: #444444;
   line-height: 1.9;
+}
+
+/* Intro banner (above About heading) */
+.intro-banner {
+  margin-bottom: 3rem;
+  padding: 1.75rem 2rem;
+  background: rgba(91, 155, 213, 0.08);
+  border: 1px solid rgba(91, 155, 213, 0.22);
+  border-left: 4px solid #5B9BD5;
+  border-radius: 4px;
+  max-width: 100%;
+}
+
+.intro-banner-lead {
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: #262626;
+  line-height: 1.55;
+  margin: 0 0 1rem;
+  max-width: 720px;
+}
+
+.intro-banner-cta {
+  font-size: 1rem;
+  color: #333333;
+  line-height: 1.75;
+  margin: 0;
+  max-width: 720px;
+}
+
+.intro-banner-here {
+  color: #5B9BD5 !important;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+
+.intro-banner-here:hover {
+  opacity: 0.8;
 }
 
 section {
@@ -278,37 +317,285 @@ section ul li::before {
   color: #666666;
 }
 
-.projects-grid {
+/* Projects: buffer-style accordions */
+.projects-accordion {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 100%;
+}
+
+/* Claims on top full width; remaining projects two per row */
+.projects-accordion-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
-  margin-top: 2rem;
+  gap: 0.75rem;
+  align-items: start;
 }
 
-.project-card {
-  padding: 2rem;
-  border: 1px solid #4A8BC2;
-  transition: all 0.3s ease;
-  background: #ffffff;
+.projects-accordion-grid .projects-accordion-box {
+  min-width: 0;
+}
+
+.projects-accordion-box {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.projects-accordion-box:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+
+/* Featured row — stronger emphasis (like buffer hero) */
+.projects-accordion-box--featured {
+  border: 2px solid #5B9BD5;
+  box-shadow: 0 4px 16px rgba(91, 155, 213, 0.2);
+}
+
+.projects-accordion-box--featured .projects-accordion-trigger {
+  padding: 1.15rem 1.35rem;
+  font-size: 1rem;
+}
+
+.projects-accordion-box--featured .projects-accordion-label {
+  font-size: 1.1rem;
+}
+
+/* Distinct gradient accents per project */
+.projects-accordion-box--c1 .projects-accordion-trigger {
+  background: linear-gradient(135deg, #5B9BD5 0%, #2E7BB8 100%);
+  color: #fff;
+}
+.projects-accordion-box--c1 .projects-accordion-trigger::after { color: #fff; }
+.projects-accordion-box--c1 .projects-accordion-trigger:hover {
+  background: linear-gradient(135deg, #6ba8e0 0%, #3d8bc9 100%);
+}
+.projects-accordion-box--c1 .projects-accordion-sub { color: rgba(255, 255, 255, 0.9); }
+
+.projects-accordion-box--c2 .projects-accordion-trigger {
+  background: linear-gradient(135deg, #E91E63 0%, #AD1457 100%);
+  color: #fff;
+}
+.projects-accordion-box--c2 .projects-accordion-trigger::after { color: #fff; }
+.projects-accordion-box--c2 .projects-accordion-trigger:hover {
+  background: linear-gradient(135deg, #f06292 0%, #c2185b 100%);
+}
+.projects-accordion-box--c2 .projects-accordion-sub { color: rgba(255, 255, 255, 0.9); }
+
+.projects-accordion-box--c3 .projects-accordion-trigger {
+  background: linear-gradient(135deg, #FF9800 0%, #E65100 100%);
+  color: #fff;
+}
+.projects-accordion-box--c3 .projects-accordion-trigger::after { color: #fff; }
+.projects-accordion-box--c3 .projects-accordion-trigger:hover {
+  background: linear-gradient(135deg, #ffb74d 0%, #f57c00 100%);
+}
+.projects-accordion-box--c3 .projects-accordion-sub { color: rgba(255, 255, 255, 0.9); }
+
+.projects-accordion-box--c4 .projects-accordion-trigger {
+  background: linear-gradient(135deg, #9C27B0 0%, #6A1B9A 100%);
+  color: #fff;
+}
+.projects-accordion-box--c4 .projects-accordion-trigger::after { color: #fff; }
+.projects-accordion-box--c4 .projects-accordion-trigger:hover {
+  background: linear-gradient(135deg, #ba68c8 0%, #8e24aa 100%);
+}
+.projects-accordion-box--c4 .projects-accordion-sub { color: rgba(255, 255, 255, 0.9); }
+
+.projects-accordion-box--c5 .projects-accordion-trigger {
+  background: linear-gradient(135deg, #00897B 0%, #004D40 100%);
+  color: #fff;
+}
+.projects-accordion-box--c5 .projects-accordion-trigger::after { color: #fff; }
+.projects-accordion-box--c5 .projects-accordion-trigger:hover {
+  background: linear-gradient(135deg, #26a69a 0%, #00695c 100%);
+}
+.projects-accordion-box--c5 .projects-accordion-sub { color: rgba(255, 255, 255, 0.9); }
+
+.projects-accordion-box--c6 .projects-accordion-trigger {
+  background: linear-gradient(135deg, #7CB342 0%, #33691E 100%);
+  color: #fff;
+}
+.projects-accordion-box--c6 .projects-accordion-trigger::after { color: #fff; }
+.projects-accordion-box--c6 .projects-accordion-trigger:hover {
+  background: linear-gradient(135deg, #9ccc65 0%, #558b2f 100%);
+}
+.projects-accordion-box--c6 .projects-accordion-sub { color: rgba(255, 255, 255, 0.9); }
+
+.projects-accordion-box--c7 .projects-accordion-trigger {
+  background: linear-gradient(135deg, #5C6BC0 0%, #283593 100%);
+  color: #fff;
+}
+.projects-accordion-box--c7 .projects-accordion-trigger::after { color: #fff; }
+.projects-accordion-box--c7 .projects-accordion-trigger:hover {
+  background: linear-gradient(135deg, #7986cb 0%, #3949ab 100%);
+}
+.projects-accordion-box--c7 .projects-accordion-sub { color: rgba(255, 255, 255, 0.9); }
+
+.projects-accordion-trigger {
+  width: 100%;
+  padding: 0.95rem 1.15rem;
+  text-align: left;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: none;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: background 0.2s ease;
+  font-family: 'Georgia', 'Times New Roman', serif;
 }
 
-.project-card:hover {
-  border-color: #3A7BA8;
-  transform: translateY(-2px);
+.projects-accordion-trigger-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  flex: 1;
+  min-width: 0;
 }
 
-.project-card h3 {
-  font-size: 1.2rem;
+.projects-accordion-label {
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.projects-accordion-sub {
+  font-size: 0.82rem;
   font-weight: 400;
-  margin: 0;
-  letter-spacing: 0.05em;
-  text-transform: capitalize;
-  color: #000000;
+  line-height: 1.45;
+  opacity: 0.95;
+}
+
+.projects-accordion-trigger::after {
+  content: '+';
+  flex-shrink: 0;
+  font-size: 1.35rem;
+  font-weight: 400;
+  line-height: 1;
+  color: #5B9BD5;
+  transition: transform 0.25s ease;
+}
+
+.projects-accordion-box.is-open .projects-accordion-trigger::after {
+  transform: rotate(45deg);
+}
+
+.projects-accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-out;
+}
+
+.projects-accordion-box.is-open .projects-accordion-content {
+  max-height: 12000px;
+}
+
+.projects-accordion-inner {
+  padding: 1.25rem 1.5rem 1.5rem;
+  border-top: 1px solid #eee;
+  background: #fff;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: #333;
+  text-align: left;
+}
+
+.projects-accordion-fulltitle {
+  font-weight: 600;
+  color: #262626;
+  font-size: 1.1rem;
+  margin: 0 0 0.75rem;
+  line-height: 1.4;
+}
+
+.projects-accordion-tagline {
+  font-size: 0.95rem;
+  color: #555;
+  line-height: 1.5;
+  margin: -0.35rem 0 1rem;
+  font-weight: 400;
+}
+
+#projects .projects-accordion-inner .detail-section {
+  padding: 1.25rem 0;
+}
+
+#projects .projects-accordion-inner .detail-section:first-of-type {
+  padding-top: 0;
+}
+
+.project-status {
+  margin: 0.35rem 0 0;
+  font-size: 0.9rem;
+}
+
+.project-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+}
+
+.project-tools--accordion {
+  margin: 0 0 1.25rem;
+}
+
+.project-tools--detail {
+  margin: 0 0 1.5rem;
+}
+
+.project-tool {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #444444;
+  background: #f0f4f8;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 0.4rem 0.7rem;
+  font-family: inherit;
+}
+
+#projects .project-list {
+  list-style: disc;
+  margin: 0.75rem 0 0;
+  padding-left: 1.35rem;
+}
+
+#projects .project-list li {
+  font-size: 1rem;
+  color: #333333;
+  line-height: 1.85;
+  padding-left: 0;
+  position: relative;
+}
+
+#projects .project-list li::before {
+  display: none;
+}
+
+.detail-section .project-list {
+  margin-top: 0.5rem;
 }
 
 .project-detail {
   margin-top: 0;
+}
+
+.project-detail h2 {
+  margin-bottom: 0.35rem;
+  text-transform: none;
+}
+
+.project-detail .project-status {
+  margin: 0 0 0.75rem;
 }
 
 .back-button {
@@ -391,7 +678,7 @@ section ul li::before {
   margin-bottom: 1rem;
   letter-spacing: 0.05em;
   text-transform: capitalize;
-  color: #000000;
+  color: #5B9BD5;
 }
 
 .detail-section p {
@@ -520,7 +807,7 @@ section ul li::before {
 }
 
 .basics-title {
-  color: #4A8BC2;
+  color: #5B9BD5;
   margin-bottom: 1.5rem;
 }
 
@@ -744,6 +1031,15 @@ a:hover {
     font-size: 0.85rem;
   }
 
+  .intro-banner {
+    padding: 1.35rem 1.25rem;
+    margin-bottom: 2.25rem;
+  }
+
+  .intro-banner-lead {
+    font-size: 1.05rem;
+  }
+
   .language-toggle {
     right: 1rem;
     font-size: 0.75rem;
@@ -770,13 +1066,21 @@ a:hover {
     font-size: 1.3rem;
   }
 
-  .projects-grid {
+  .projects-accordion-grid {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
   }
 
-  .project-card {
-    padding: 1.5rem;
+  .projects-accordion-trigger {
+    padding: 0.85rem 1rem;
+    align-items: flex-start;
+  }
+
+  .projects-accordion-sub {
+    font-size: 0.78rem;
+  }
+
+  .projects-accordion-inner {
+    padding: 1rem 1.1rem 1.25rem;
   }
 
   .project-detail-content {
